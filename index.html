@@ -343,45 +343,66 @@ function toggleQuestion(val){
 function shuffle(a){var b=a.slice();for(var i=b.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=b[i];b[i]=b[j];b[j]=t;}return b;}
 var drawn=[],ft='';
 function startReading(){
-  var q=document.getElementById('qInput').value.trim();
-  var sp=document.getElementById('spreadSelect').value;
-  if(!q && (!sp || sp === "own")){alert('Напишите ваш вопрос картам');return;}
-  if(!q && sp && sp !== "own"){q='расклад '+SP[sp];}
-  var cardCount=parseInt(document.getElementById('cardCount').value)||3;
-  var btn=document.getElementById('orderBtn');
-  btn.disabled=true;btn.textContent='🔮 Открываю карты...';
-  drawn=shuffle(CARDS).slice(0,cardCount);
-  var rs=document.getElementById('rs');rs.style.display='block';
+  var q = document.getElementById('qInput').value.trim();
+  var sp = document.getElementById('spreadSelect').value;
+  if(!q && sp !== 'own') q = SP[sp] || '';
+  if(!q){alert('Напишите ваш вопрос картам');return;}
+  var cardCount = parseInt(document.getElementById('cardCount').value) || 3;
+  var btn = document.getElementById('orderBtn');
+  btn.disabled = true;
+  btn.textContent = '🔮 Открываю карты...';
+  var drawn = shuffle(CARDS.slice()).slice(0, cardCount);
+  var rs = document.getElementById('rs');
+  rs.style.display = 'block';
   rs.scrollIntoView({behavior:'smooth'});
-  var rc=document.getElementById('rcards');rc.innerHTML='';
+  var rc = document.getElementById('rcards');
+  rc.innerHTML = '';
   drawn.forEach(function(c){
-    var d=document.createElement('div');d.className='rcard';
-    d.innerHTML='<div class="rcard-img"><img src="'+c.img+'" alt="'+c.name+'"/></div><div class="rcard-name">'+c.name+'</div>';
+    var d = document.createElement('div');
+    d.className = 'rcard';
+    d.innerHTML = '<div class="rcard-img"><img src="'+c.img+'" alt="'+c.name+'"/></div><div class="rcard-name">'+c.name+'</div>';
     rc.appendChild(d);
   });
-  document.getElementById('ldiv').style.display='block';
-  document.getElementById('rdiv').innerHTML='';
-  document.getElementById('cdiv').style.display='none';
-  var sp=document.getElementById('spreadSelect').value;
-  var cardTemplate=drawn.map(function(c){return '{"name":"'+c.name+'","reading":"текст"}';}).join(',');
-  var prompt='Ты профессиональный таролог Яна Белова. Клиент заказал '+SP[sp]+'. Вопрос: "'+q+'". Выпали карты: '+drawn.map(function(c){return c.name+' ('+c.kw+')';}).join(', ')+'. Для каждой карты ровно 2 предложения толкования применительно к вопросу. Общий вывод 4 предложения. ТОЛЬКО JSON: {"cards":['+cardTemplate+'],"conclusion":"текст"}';
-  fetch(WK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'llama-3.3-70b-versatile',messages:[{role:'user',content:prompt}],max_tokens:Math.min(250*cardCount+500,4000),temperature:0.88})})
-  .then(function(r){return r.json();})
-  .then(function(data){
+  document.getElementById('ldiv').style.display = 'block';
+  document.getElementById('rdiv').innerHTML = '';
+  document.getElementById('cdiv').style.display = 'none';
+  var prompt = 'Ты профессиональный таролог Яна Белова. Клиент заказал '+SP[sp]+'. Вопрос: "'+q+'". Выпали карты: '+drawn.map(function(c){return c.name+' ('+c.kw+')';}).join(', ')+'. Для каждой карты ровно 2 предложения толкования применительно к вопросу. Общий вывод 4 предложения. ТОЛЬКО JSON: {"cards":['+drawn.map(function(c){return '{"name":"'+c.name+'","reading":"текст"}';}).join(',')+'],"conclusion":"текст"}';
+  fetch(WK,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      model:'llama-3.3-70b-versatile',
+      messages:[{role:'user',content:prompt}],
+      max_tokens:Math.min(250*cardCount+500,4000),
+      temperature:0.88
+    })
+  })
+  .then(r=>r.json())
+  .then(data=>{
     if(data.error)throw new Error(data.error.message);
     var txt=data.choices[0].message.content.replace(/```json|```/g,'').trim();
     var p=JSON.parse(txt);
     document.getElementById('ldiv').style.display='none';
-    ft='';var area=document.getElementById('rdiv');
+    var area=document.getElementById('rdiv');
     p.cards.forEach(function(c,i){
-      var d=document.createElement('div');d.className='rb';
+      var d=document.createElement('div');
+      d.className='rb';
       d.innerHTML='<div class="rb-name">'+drawn[i].name+'</div><div class="rb-text">'+c.reading+'</div>';
-      area.appendChild(d);ft+=drawn[i].name+'\n'+c.reading+'\n\n';
+      area.appendChild(d);
     });
-    if(p.conclusion){document.getElementById('ctxt').textContent=p.conclusion;document.getElementById('cdiv').style.display='block';ft+='Послание карт:\n'+p.conclusion;}
+    if(p.conclusion){
+      document.getElementById('ctxt').textContent=p.conclusion;
+      document.getElementById('cdiv').style.display='block';
+    }
   })
-  .catch(function(e){document.getElementById('ldiv').textContent='⚠️ Ошибка: '+e.message;})
-  .finally(function(){btn.disabled=false;btn.textContent='🔮 Получить расклад';});
+  .catch(e=>{
+    document.getElementById('ldiv').textContent='⚠️ Ошибка: '+e.message;
+    console.error(e);
+  })
+  .finally(()=>{
+    btn.disabled=false;
+    btn.textContent='🔮 Получить расклад';
+  });
 }
 
 var DAY_CARDS = [
