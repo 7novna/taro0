@@ -224,7 +224,6 @@ footer p{font-size:18.2px;color:var(--ts);}
   <p>© Яна Белова · Таро · 2025</p><p style="margin-top:4px;">Самозанятая · ИНН: 430501352204</p><p style="margin-top:6px;">Связь: <span style="color:var(--gold);">7novna&#64;mail&#46;ru</span></p>
   <p style="margin-top:5px;font-size:11px;color:var(--ts);line-height:1.5;">Все расклады носят исключительно развлекательный и информационно-образовательный характер. Не являются предсказанием будущего, медицинской, юридической или финансовой консультацией. Принятие решений остаётся за клиентом.</p>
 </footer>
-
 <script>
 var WK='https://steep-bread-7af1.poponina73.workers.dev';
 var W='https://upload.wikimedia.org/wikipedia/commons/';
@@ -309,39 +308,52 @@ var CARDS=[
   {name:'Королева Пентаклей',img:'https://upload.wikimedia.org/wikipedia/commons/8/88/Pents13.jpg',kw:'забота, практичность, материнство, уют'},
   {name:'Король Пентаклей',img:'https://upload.wikimedia.org/wikipedia/commons/1/1c/Pents14.jpg',kw:'богатство, успех, стабильность, щедрость'}
 ];
+
 var SP={
   situation:'расклад на текущую ситуацию — что происходит, скрытые силы, возможный исход',
   love:'расклад на отношения — чувства обеих сторон, динамика, куда движутся отношения',
   money:'расклад на деньги и карьеру — финансовый поток, возможности, блоки',
   month:'расклад на ближайший месяц — энергия и ключевые события',
-  year:'расклад на год — главные темы, уроки и возможности',
-  fate:'расклад на судьбу и кармическое предназначение',
-  feelings:'расклад на чувства конкретного человека — что он думает и чувствует',
-  choice:'расклад на выбор между двумя путями',
-  health:'расклад на энергетическое состояние здоровья',
-  change:'расклад на перемены — стоит ли менять ситуацию',
-  yesno:'расклад Да или Нет — чёткий ответ на конкретный вопрос',
-  dream:'расклад на толкование сновидения через карты Таро',
-  potential:'расклад на скрытый потенциал и возможности человека',
   third:'расклад Третий лишний — есть ли соперник, какова их роль и угроза отношениям',
+  fate:'расклад Куда ведёт меня судьба — что уготовано и какие события неизбежны',
+  feelings:'расклад На чувства человека — что он думает и чувствует к вам',
+  health:'расклад На здоровье — энергетическое состояние тела, что требует внимания',
+  change:'расклад На перемены — стоит ли менять работу, город, отношения',
+  yesno:'расклад Да или Нет — быстрый и чёткий ответ на конкретный вопрос',
+  love2:'расклад На любовь — придёт ли любовь, что мешает встрече, как открыться',
   universe:'расклад Послание от Вселенной — что высшие силы хотят сказать прямо сейчас',
-  love2:'расклад на любовь — придёт ли любовь, что мешает встрече и как открыться'
+  own:'свой вопрос к картам'
 };
+
 function selectSpread(val){
   var sel = document.getElementById('spreadSelect');
-  if(sel){
-    sel.value = val;
-    toggleQuestion(val);
-    // highlight selected
-    document.querySelectorAll('.sc').forEach(function(el){el.style.borderColor='';});
-  }
+  if(sel) sel.value = val;
+  toggleQuestion(val);
   document.getElementById('order').scrollIntoView({behavior:'smooth'});
 }
 function toggleQuestion(val){
-  document.getElementById('questionBlock').style.display = val === 'own' ? 'block' : 'none';
+  var block = document.getElementById('questionBlock');
+  if(block) block.style.display = (val === 'own') ? 'block' : 'none';
 }
-function shuffle(a){var b=a.slice();for(var i=b.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=b[i];b[i]=b[j];b[j]=t;}return b;}
-var drawn=[],ft='';
+function shuffle(arr){
+  for(var i=arr.length-1;i>0;i--){
+    var j=Math.floor(Math.random()*(i+1));
+    var t=arr[i]; arr[i]=arr[j]; arr[j]=t;
+  }
+  return arr;
+}
+function updatePrice(){
+  var count = parseInt(document.getElementById('cardCount').value) || 3;
+  var price = count * 50;
+  var priceSpan = document.getElementById('priceDisplay');
+  if(priceSpan) priceSpan.innerText = price + ' ₽';
+}
+document.addEventListener('DOMContentLoaded', function() {
+  var countSelect = document.getElementById('cardCount');
+  if(countSelect) countSelect.addEventListener('change', updatePrice);
+  updatePrice();
+});
+
 function startReading(){
   var q = document.getElementById('qInput').value.trim();
   var sp = document.getElementById('spreadSelect').value;
@@ -405,39 +417,23 @@ function startReading(){
   });
 }
 
-var DAY_CARDS = [
-  {name:'Шут',kw:'Новое начало ждёт вас. Доверьтесь жизни и сделайте первый шаг — сегодня именно тот день.',img:'https://upload.wikimedia.org/wikipedia/commons/9/90/RWS_Tarot_00_Fool.jpg'},
-  {name:'Маг',kw:'Ваша воля и мастерство сегодня на высоте. Всё что задумали — воплотите.',img:'https://upload.wikimedia.org/wikipedia/commons/d/de/RWS_Tarot_01_Magician.jpg'},
-  {name:'Жрица',kw:'Прислушайтесь к внутреннему голосу. Сегодня интуиция не подведёт.',img:'https://upload.wikimedia.org/wikipedia/commons/8/88/RWS_Tarot_02_High_Priestess.jpg'},
-  {name:'Императрица',kw:'День наполнен изобилием и творческой энергией. Позвольте себе цвести.',img:'https://upload.wikimedia.org/wikipedia/commons/d/d2/RWS_Tarot_03_Empress.jpg'},
-  {name:'Солнце',kw:'Сегодня особенный день — радость и успех сопровождают каждый ваш шаг.',img:'https://upload.wikimedia.org/wikipedia/commons/1/17/RWS_Tarot_19_Sun.jpg'},
-  {name:'Звезда',kw:'Надежда и вдохновение с вами. Мечтайте смело — вселенная слышит.',img:'https://upload.wikimedia.org/wikipedia/commons/d/db/RWS_Tarot_17_Star.jpg'},
-  {name:'Луна',kw:'День снов и интуиции. Не спешите с решениями, доверьтесь ощущениям.',img:'https://upload.wikimedia.org/wikipedia/commons/7/7f/RWS_Tarot_18_Moon.jpg'},
-  {name:'Сила',kw:'Сегодня ваша внутренняя сила особенно велика. Действуйте с мягкостью и уверенностью.',img:'https://upload.wikimedia.org/wikipedia/commons/f/f5/RWS_Tarot_08_Strength.jpg'},
-  {name:'Колесо Фортуны',kw:'Перемены идут — и они к лучшему. Доверьтесь течению жизни.',img:'https://upload.wikimedia.org/wikipedia/commons/3/3c/RWS_Tarot_10_Wheel_of_Fortune.jpg'},
-  {name:'Влюблённые',kw:'День гармонии и сердечных связей. Цените тех кто рядом.',img:'https://upload.wikimedia.org/wikipedia/commons/d/db/RWS_Tarot_06_Lovers.jpg'},
-  {name:'Мир',kw:'Завершение цикла и ощущение полноты. Вы на правильном пути.',img:'https://upload.wikimedia.org/wikipedia/commons/f/ff/RWS_Tarot_21_World.jpg'},
-  {name:'Отшельник',kw:'День для тишины и размышлений. Побудьте наедине с собой — ответы внутри.',img:'https://upload.wikimedia.org/wikipedia/commons/4/4d/RWS_Tarot_09_Hermit.jpg'},
-  {name:'Умеренность',kw:'Найдите баланс и золотую середину. Не торопитесь — всему своё время.',img:'https://upload.wikimedia.org/wikipedia/commons/f/f8/RWS_Tarot_14_Temperance.jpg'},
-];
-var dayRevealed = false;
-function revealDayCard() {
-  if (dayRevealed) return;
-  var today = new Date();
-  var idx = (today.getFullYear() * 365 + today.getMonth() * 31 + today.getDate()) % DAY_CARDS.length;
-  var card = DAY_CARDS[idx];
-  var front = document.getElementById('day-front');
-  var back = document.getElementById('day-back');
-  front.src = card.img;
-  front.onload = function() {
-    back.style.opacity = '0';
-    fro
-nt.style.opacity = '1';
-    document.getElementById('day-name').textContent = card.name;
-    document.getElementById('day-kw').textContent = card.kw;
-    dayRevealed = true;
-  };
+function copyR(){
+  var text = '';
+  var cards = document.querySelectorAll('.rb');
+  cards.forEach(function(card){
+    var name = card.querySelector('.rb-name');
+    var reading = card.querySelector('.rb-text');
+    if(name && reading) text += name.innerText + '\n' + reading.innerText + '\n\n';
+  });
+  var concl = document.getElementById('ctxt');
+  if(concl && concl.innerText) text += 'Послание карт:\n' + concl.innerText;
+  if(text){
+    navigator.clipboard.writeText(text).then(()=>alert('Расклад скопирован')).catch(()=>alert('Не удалось скопировать'));
+  } else {
+    alert('Нет текста для копирования');
+  }
 }
 </script>
+
 </body>
 </html>
