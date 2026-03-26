@@ -225,8 +225,15 @@ footer p{font-size:18.2px;color:var(--ts);}
   <p style="margin-top:5px;font-size:11px;color:var(--ts);line-height:1.5;">Все расклады носят исключительно развлекательный и информационно-образовательный характер. Не являются предсказанием будущего, медицинской, юридической или финансовой консультацией. Принятие решений остаётся за клиентом.</p>
 </footer>
 <script>
+<script>
 var WK = 'https://steep-bread-7af1.poponina73.workers.dev';
 var W = 'https://upload.wikimedia.org/wikipedia/commons/';
+
+// Функция очистки от иероглифов
+function cleanText(str) {
+  // Оставляет: русские буквы, английские буквы, цифры, пробелы, стандартную пунктуацию
+  return str.replace(/[^\u0400-\u04FF\u0500-\u052F\u0000-\u007F\u00A0-\u00FF\u2010-\u2027\s]/g, '');
+}
 
 var CARDS = [
   {name:'Шут',img:W+'9/90/RWS_Tarot_00_Fool.jpg',kw:'свобода, новое начало, доверие жизни'},
@@ -331,17 +338,18 @@ function selectSpread(val){
   toggleQuestion(val);
   document.getElementById('order').scrollIntoView({behavior:'smooth'});
 }
+
 function toggleQuestion(val){
   var block = document.getElementById('questionBlock');
   var qInput = document.getElementById('qInput');
   if(val === 'own'){
     block.style.display = 'block';
-    // Для "Свой вопрос" поле остаётся видимым, очищать его не нужно (пользователь может ввести новый)
   } else {
     block.style.display = 'none';
-    if(qInput) qInput.value = ''; // ← Очищаем поле, чтобы старый вопрос не мешал
+    if(qInput) qInput.value = ''; // Очищаем поле, чтобы старый вопрос не мешал
   }
 }
+
 function shuffle(arr){
   for(var i=arr.length-1;i>0;i--){
     var j=Math.floor(Math.random()*(i+1));
@@ -349,17 +357,19 @@ function shuffle(arr){
   }
   return arr;
 }
+
 function updatePrice(){
   var count = parseInt(document.getElementById('cardCount').value) || 3;
   var price = count * 50;
   var priceSpan = document.getElementById('priceDisplay');
   if(priceSpan) priceSpan.innerText = price + ' ₽';
 }
+
 document.addEventListener('DOMContentLoaded', function() {
   var countSelect = document.getElementById('cardCount');
   if(countSelect) countSelect.addEventListener('change', updatePrice);
   updatePrice();
-  // Инициализируем видимость поля вопроса при загрузке
+  // Инициализируем видимость и очистку поля вопроса при загрузке
   var spreadSelect = document.getElementById('spreadSelect');
   if(spreadSelect) toggleQuestion(spreadSelect.value);
 });
@@ -409,11 +419,13 @@ function startReading(){
     p.cards.forEach(function(c,i){
       var d=document.createElement('div');
       d.className='rb';
-      d.innerHTML='<div class="rb-name">'+drawn[i].name+'</div><div class="rb-text">'+c.reading+'</div>';
+      var cleanReading = cleanText(c.reading);
+      d.innerHTML='<div class="rb-name">'+drawn[i].name+'</div><div class="rb-text">'+cleanReading+'</div>';
       area.appendChild(d);
     });
     if(p.conclusion){
-      document.getElementById('ctxt').textContent=p.conclusion;
+      var cleanConclusion = cleanText(p.conclusion);
+      document.getElementById('ctxt').textContent=cleanConclusion;
       document.getElementById('cdiv').style.display='block';
     }
   })
