@@ -333,7 +333,14 @@ function selectSpread(val){
 }
 function toggleQuestion(val){
   var block = document.getElementById('questionBlock');
-  if(block) block.style.display = (val === 'own') ? 'block' : 'none';
+  var qInput = document.getElementById('qInput');
+  if(val === 'own'){
+    block.style.display = 'block';
+    // Для "Свой вопрос" поле остаётся видимым, очищать его не нужно (пользователь может ввести новый)
+  } else {
+    block.style.display = 'none';
+    if(qInput) qInput.value = ''; // ← Очищаем поле, чтобы старый вопрос не мешал
+  }
 }
 function shuffle(arr){
   for(var i=arr.length-1;i>0;i--){
@@ -352,6 +359,9 @@ document.addEventListener('DOMContentLoaded', function() {
   var countSelect = document.getElementById('cardCount');
   if(countSelect) countSelect.addEventListener('change', updatePrice);
   updatePrice();
+  // Инициализируем видимость поля вопроса при загрузке
+  var spreadSelect = document.getElementById('spreadSelect');
+  if(spreadSelect) toggleQuestion(spreadSelect.value);
 });
 
 function startReading(){
